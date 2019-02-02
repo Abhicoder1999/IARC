@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   sensor_msgs
   cv_bridge
   image_transport
@@ -22,15 +23,18 @@ find_package(
    OpenCV REQUIRED
 )
 
-add_message_files(
-  FILES
-  Combined.msg
-)
 
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+#catkin_package(CATKIN_DEPENDS message_runtime)
+
+#add_message_files(
+#  FILES
+#  Combined.msg
+#)
+
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 

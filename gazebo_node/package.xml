@@ -57,6 +57,7 @@
 
   <depend>sample_qt_app</depend>
 
+
   <build_depend>sensor_msgs</build_depend>
   <build_depend>cv_bridge</build_depend>
   <build_depend>message_generation</build_depend>
