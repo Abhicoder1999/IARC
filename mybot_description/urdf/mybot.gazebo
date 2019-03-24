@@ -105,6 +105,7 @@
 
  <!-- Kinect -->
   <gazebo reference="kinect_ros">
+   <material>Gazebo/Red</material>
     <sensor name="kinect_camera" type="depth">
         <update_rate>20</update_rate>
         <camera>
