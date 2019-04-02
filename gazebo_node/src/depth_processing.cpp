@@ -13,7 +13,8 @@ using namespace cv;
 
 ros::Publisher pub;
 ros::Publisher pub2;
-sensor_msgs::ImagePtr msg_pub;
+image_transport::Publisher img_pub;
+int l_thr,h_thr;
 
 void moment(Mat img,Mat &oframe)
 {
@@ -46,66 +47,70 @@ void moment(Mat img,Mat &oframe)
        center.z = 0;
        circle(oframe,ma,4,Scalar(0,0,255),-1);
        drawContours(oframe,contours,i,Scalar(0,255,0),2,8,hierarchy,0,Point());
-       //pub.publish(max);
+       pub.publish(max);
        pub2.publish(center);
        cout<<center<<endl;
        break;
   }
   }
 
-  }
+}
+}
 
-  else
+
+void detectionCallback(const sensor_msgs::ImageConstPtr& msg)
+{
+  cv_bridge::CvImageConstPtr cv_ptr;
+  sensor_msgs::ImagePtr img_msg;
+  try
   {
-      geometry_msgs::Vector3 center;
-      center.x = 0;
-      center.y = 0;
-      center.z = 0;
-      pub2.publish(center);
-      cout<<center<<endl;
+    cv_ptr = cv_bridge::toCvShare(msg);
+
   }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+    return;
+  }
+
+  Mat mono8_img = cv::Mat(cv_ptr->image.size(), CV_8UC1);
+  Mat mono8_img_l = mono8_img;//cv::Mat(cv_ptr->image.size(),CV_8UC1);
+  Mat mono8_img_h = mono8_img;
+  Mat mono8_img_binary = mono8_img;
+  cv::convertScaleAbs(cv_ptr->image, mono8_img, 100, 0.0);
+  // cv::imshow("Greyscale",mono8_img);
+  // l_thr = 30;
+  // h_thr = 50;
+  // cv::threshold( mono8_img_l, mono8_img, l_thr,255,1);
+  // cv::threshold( mono8_img_h, mono8_img, h_thr,255,1);
+  // mono8_img_binary = mono8_img_h - mono8_img_l;
+  cv::imshow("Greyscale",mono8_img);
+  // cv::imshow("test",mono8_img_h);
+  img_msg = cv_bridge::CvImage(std_msgs::Header(),"mono8",mono8_img).toImageMsg();
+  img_pub.publish(img_msg);
+  // moment(mono8_img);
+  cv::waitKey(3);
+
 }
 
-
-void imageCallback(const sensor_msgs::ImageConstPtr& msg_sub){
-try
-   {
-
-    Mat oframe=cv_bridge::toCvShare(msg_sub, "bgr8")->image;
-    //thresholding
-    Mat frame;
-    cv::Size sz = oframe.size();
-    // int imageWidth = sz.width;
-    // int imageHeight = sz.height;
-    // ROS_ERROR("%d (Width) and %d (Hieght) ", imageWidth,imageHeight);
-    cvtColor(oframe,frame,COLOR_BGR2HSV);
-    inRange(frame,Scalar(64,64,139),Scalar(180,255,255),frame);
-    // inRange(frame,Scalar(0,0,0),Scalar(0,0,40),frame);
-    moment(frame,oframe);
-    imshow("view",oframe);
-    waitKey(30);
-   }
-catch (cv_bridge::Exception& e)
-   {
-     ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg_sub->encoding.c_str());
-   }
-}
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "ball_detect");
+
+	ros::init(argc, argv, "depth_processing");
 	ros::NodeHandle nh;
-	cv::namedWindow("view");
+	cv::namedWindow("Greyscale");
+  cv::namedWindow("Test");
     // cv::resizeWindow("view", 300,300);//
 	cv::startWindowThread();
 	image_transport::ImageTransport it(nh);
-	// image_transport::Subscriber sub = it.subscribe("/mybot/camera1/image_raw", 1, imageCallback);
-  image_transport::Subscriber sub = it.subscribe("/camera/image", 1, imageCallback);
-  //  pub = nh.advertise<std_msgs::Float64>("pro_img",1000);
-    pub2 = nh.advertise<geometry_msgs::Vector3>("centre_coordinates",1000);//
-    while(ros::ok)
-	ros::spin();
-	cv::destroyWindow("view");
-    // stop();
+  img_pub = it.advertise("/camera/depth/greyscale",1);
+  image_transport::Subscriber sub = it.subscribe("/camera/depth/image_depth", 1, detectionCallback);
+  // l_thr=0;h_thr=0;
+  // namedWindow("Thr_Value", 1);
+  // createTrackbar( "Thr_H", "Thr_Value", &h_thr, 180);
+  // createTrackbar( "Thr_L", "Thr_Value", &l_thr, 180);
+    ros::spin();
+    cv::destroyWindow("view");
     return 0;
 }

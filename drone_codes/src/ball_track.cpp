@@ -106,7 +106,8 @@ void rotate(int dir = 0)
 {
 	if(!dir)
 
-	{			float kp = 0.001;
+	{
+		 		float kp = 0.1;
 				geometry_msgs::Vector3 linar_values;
 		    linar_values.x = 0.0;
 		    linar_values.y = 0.0;
@@ -116,17 +117,17 @@ void rotate(int dir = 0)
 		    geometry_msgs::Vector3 angular_values;
 		    angular_values.x = 0.0;
 		    angular_values.y = 0.0;
-		    angular_values.z = -kp*error.x;
+		    angular_values.z = kp*error.x;
+
 				cout<<"clock error in rotation:"<<angular_values.z<<"\n";
 
 				std_msgs::Float32MultiArray msg;
-				msg.data[0] = linar_values.x;
-				msg.data[1] = linar_values.y;
-				msg.data[2] = linar_values.z;
-
-				msg.data[3] = angular_values.x;
-				msg.data[4] = angular_values.y;
-				msg.data[5] = angular_values.z;
+				msg.data.push_back(linar_values.x);
+				msg.data.push_back(linar_values.y);
+				msg.data.push_back(linar_values.z);
+				msg.data.push_back(angular_values.x);
+				msg.data.push_back(angular_values.y);
+				msg.data.push_back(angular_values.z);
 
 				// geometry_msgs::Twist msg;
 		    // msg.linear = linar_values;
@@ -138,7 +139,8 @@ void rotate(int dir = 0)
 
 	else
 	{
-		float kp = 0.001;
+		float kp = 0.1;
+
 		geometry_msgs::Vector3 linar_values;
 		linar_values.x = 0.0;
 		linar_values.y = 0.0;
@@ -148,20 +150,20 @@ void rotate(int dir = 0)
 		geometry_msgs::Vector3 angular_values;
 		angular_values.x = 0.0;
 		angular_values.y = 0.0;
-		angular_values.z = -kp*error.x;
+		angular_values.z = kp*error.x;
 		cout<<" Anti error in rotation:"<<angular_values.z<<"\n";
 
 		std_msgs::Float32MultiArray msg;
-		msg.data[0] = linar_values.x;
-		msg.data[1] = linar_values.y;
-		msg.data[2] = linar_values.z;
+		msg.data.push_back(linar_values.x);
+		msg.data.push_back(linar_values.y);
+		msg.data.push_back(linar_values.z);
+		msg.data.push_back(angular_values.x);
+		msg.data.push_back(angular_values.y);
+		msg.data.push_back(angular_values.z);
 
-		msg.data[3] = angular_values.x;
-		msg.data[4] = angular_values.y;
-		msg.data[5] = angular_values.z;
 		// geometry_msgs::Twist msg;
-    // msg.linear = linar_values;
-    // msg.angular = angular_values;
+		// msg.linear = linar_values;
+		// msg.angular = angular_values;
 
 		pub.publish(msg);
 
@@ -199,7 +201,8 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 	// ros::Subscriber sub = nh.subscribe("/pro_img",1000,areaCallBack);
 	ros::Subscriber sub2 = nh.subscribe("/centre_coordinates",1000,centerCallBack);
-	pub = nh.advertise<std_msgs::Float32MultiArray>("/cmd_vel",1000);
+	pub = nh.advertise<std_msgs::Float32MultiArray>("/velocity",1000);
+	// pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel",1000);
 	ros::spin();
 	// ros::stop();
 	return 0;

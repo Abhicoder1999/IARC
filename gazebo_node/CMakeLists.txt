@@ -235,3 +235,7 @@ include_directories(
  add_executable(motion_pub src/motion_pub.cpp)
  target_link_libraries(motion_pub ${catkin_LIBRARIES} ${OpenCV_LIBS})
  add_dependencies(motion_pub gazebo_node_generate_messages_cpp)
+
+ add_executable(depth_processing src/depth_processing.cpp)
+ target_link_libraries(depth_processing ${catkin_LIBRARIES} ${OpenCV_LIBS})
+ add_dependencies(depth_processing gazebo_node_generate_messages_cpp)
