@@ -1,11 +1,7 @@
-	/***************************************************************************
- *                       Varanon Austin Pukasamsombut					   *
- *																		   *
- *                  AERO = Autonomous Exploration RObot                    *
- *                                 Test                                    *
+/*
  *                                                                         *
- * This code is designed to make a Quadcopter (with APM 2.6) autonomously  *
- * takeoff in ALT_HOLD mode, hover in the air for 20 seconds, and then     *
+ * This code is designed to make the quad autonomously                     *
+ * takeoff in ALT_HOLD mode, hover in the air for 5 seconds, and then      *
  * land by changing to LAND mode.                                          * 
  ***************************************************************************/
 
@@ -21,26 +17,26 @@
 
 #define mavros mavros_msgs
 
-//Define Radio Channels to Numbers [May differ depending on RC Transmitter]
+//Assigning channels to D.O.F.
 #define ROLL 0
 #define PITCH 1
 #define THROTTLE 2
 #define YAW 3
 #define LEFT_TRIGGER 5
 
-//Define Checks
+//Defining Checks
 #define PRELIMINARY_CHECK 1
 #define LAND_CHECK 2
 
-//Define RC Throttle Values [Differs for all controllers]
+//Defining RC Throttle Values 
 #define MIDDLE 1500  //PWM Value with Stick at Middle 
-#define RISING 1800 //PWM Value with Stick Slightly Above Middle
+#define RISING 1800 //PWM Value with Stick Above Middle
 #define RELEASE 1000 //PWM Value when Stick is completely Lowered
 #define NO_RC 900	 //PWM Value when no RC Controller has been connected.
 
 #define HOV_TIME 5  //hovering time in seconds
 
-//Class Define (Maybe Move to Separate File Later)
+//Class definition (Maybe Move to Separate File Later)
 class Receiver
 {
     public:
@@ -148,10 +144,10 @@ void Receiver::vfrCallback(const mavros_msgs::VFR_HUD::ConstPtr& msg)
     {
         if(msg->altitude-gnd_alt < 20)
         {
-            ROS_INFO("Ascending...");
+            ROS_INFO("Ascending...");	//Rises until the Altitude Goes Above 20
             vfr_finished = false;
         }
-        else //Rises until the Altitude Goes Above 2.6
+        else 
         {
             ROS_INFO("Completed: RISING");
             vfr_finished = true;
@@ -164,7 +160,7 @@ void Receiver::vfrCallback(const mavros_msgs::VFR_HUD::ConstPtr& msg)
             ROS_INFO("Descending...");
             vfr_finished = false;
         }
-        else //Rises until the Altitude Goes Above 2.6
+        else 
         {
             vfr_finished = true;
         }
@@ -224,7 +220,7 @@ int main(int argc, char **argv)
     system("rosrun mavros mavsafety arm");
     
     receiver.state_check = PRELIMINARY_CHECK;
-    receiver.state_finished = false; //Calls State Callback
+    receiver.state_finished = false; //allows State Callback body to be executed
     while((!receiver.state_finished) && (ros::ok()) && (!receiver.terminate))
      {   ros::spinOnce();
      	 }
@@ -249,12 +245,8 @@ int main(int argc, char **argv)
 
     ROS_INFO("Completed: Take Off");
    
-    //Continues until Altitude Reaches Certain Point (+ 1m)
-
+   
     ROS_INFO("Commencing: Ascent");
-
-    //receiver.landing = false;
-    //receiver.alt_ground = 0.00;
 
     receiver.vfr_check = RISING;
     receiver.vfr_finished = false;
@@ -299,7 +291,7 @@ int main(int argc, char **argv)
     if((!receiver.terminate) && (ros::ok())) 
         system("rosrun mavros mavsys mode -c LAND");    
     receiver.state_check = LAND_CHECK;
-    receiver.state_finished = false; //Calls State Callback
+    receiver.state_finished = false; 
     while((!receiver.state_finished) && (ros::ok()) && (!receiver.terminate))
         ros::spinOnce();
 
