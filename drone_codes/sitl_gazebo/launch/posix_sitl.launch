@@ -1,0 +1,45 @@
+<launch>
+    <!-- Posix SITL environment launch script -->
+
+    <arg name="headless" default="false"/>
+    <arg name="gui" default="true"/>
+    <arg name="world" default="city"/>
+    <arg name="camera" default="true"/>
+    <arg name="global_namespace" default="flytsim"/>
+    
+    <node pkg="sitl_gazebo" type="sitl_run.sh" name="simulator" args="ekf2 none gazebo typhoon_h480 $(find sitl_gazebo) " >
+        <env name="no_sim" value="1" />
+    </node>
+     <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(find sitl_gazebo)/worlds/$(arg world).world" />
+    </include>
+
+    <group if="$(arg camera)">
+        <node name="spawn_typhoon_h480" pkg="gazebo_ros" type="spawn_model"
+         args="-sdf 
+               -database typhoon_h480
+               -model typhoon_h480
+               -gazebo_namespace /$(arg global_namespace)/gazebo
+               -x 0
+               -y 0
+               -z 0.5"
+         respawn="false" >
+        </node>
+    </group>
+
+    <group unless="$(arg camera)">
+        <node name="spawn_typhoon_h480_nocam" pkg="gazebo_ros" type="spawn_model"
+         args="-sdf 
+               -database typhoon_h480_nocam
+               -model typhoon_h480_nocam
+               -gazebo_namespace /$(arg global_namespace)/gazebo
+               -x 0
+               -y 0
+               -z 0.5"
+         respawn="false" >
+        </node>
+    </group>
+
+</launch>

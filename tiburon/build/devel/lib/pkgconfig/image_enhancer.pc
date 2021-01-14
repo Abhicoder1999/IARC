@@ -1,0 +1,8 @@
+prefix=/home/abhijeet/Documents/catkin_ws/src/image_enhancer/build/devel
+
+Name: image_enhancer
+Description: Description of image_enhancer
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/abhijeet/Documents/catkin_ws/src/image_enhancer/build/devel/lib 
+Requires: 

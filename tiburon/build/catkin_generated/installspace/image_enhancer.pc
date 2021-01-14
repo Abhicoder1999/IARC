@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: image_enhancer
+Description: Description of image_enhancer
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/abhijeet/Documents/catkin_ws/src/image_enhancer/build/devel/setup.sh
